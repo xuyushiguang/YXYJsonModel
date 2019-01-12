@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 #import "YXYJsonModelFactory.h"
-
+#import "YXYMessageCenter.h"
 @interface ViewController ()
 
 @end
@@ -18,6 +18,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    [[YXYMessageCenter defaultCenter] postForKey:@"message"];
+    
     UIButton *bt = [UIButton buttonWithType:UIButtonTypeCustom];
     bt.backgroundColor = [UIColor redColor];
     bt.frame = CGRectMake(100, 100, 100, 50);

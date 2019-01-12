@@ -56,7 +56,6 @@ static  YXYMessageCenter    *_center;
     if (!hasObj) {
         [self.observers addObject:model];
     }
-    NSLog(@"addObserver%@",self.observers);
 }
 
 -(void)postForKey:(NSString*)keyPath
@@ -78,8 +77,6 @@ static  YXYMessageCenter    *_center;
             *stop = YES;
         }
     }];
-    
-    NSLog(@"removeObsever%@",self.observers);
 }
 
 -(void)removeObsever:(NSObject*)observerObj
@@ -91,8 +88,6 @@ static  YXYMessageCenter    *_center;
             *stop = YES;
         }
     }];
-   
-    NSLog(@"removeObsever%@",self.observers);
 }
 
 #pragma mark --geter
