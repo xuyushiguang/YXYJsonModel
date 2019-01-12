@@ -13,6 +13,8 @@
 
 -(void)setValue:(id)value forProperty:(NSString*)property;
 
+-(void)addMethod:(Class)cls withSEL:(SEL)sel;
+
 @end
 
 

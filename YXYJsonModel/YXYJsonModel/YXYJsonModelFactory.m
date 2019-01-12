@@ -8,21 +8,8 @@
 #import <UIKit/UIKit.h>
 #import "YXYJsonModelFactory.h"
 #import <objc/runtime.h>
-
+#import <objc/message.h>
 @implementation YXYJsonModelFactory
-
-+(NSObject<YXYJsonModelProtocol>*)creatModelWithJson:(NSDictionary*)jDic
-{
-    
-    NSArray *keys = [jDic allKeys];
-    Class JsonClass = [self creatModelClassWithIvars:keys];
-    id jsonObjc = [[JsonClass alloc] init];
-    for (NSString *ivar in keys) {
-        [jsonObjc setValue:jDic[ivar] forKey:ivar];
-    }
-    
-    return jsonObjc;
-}
 
 +(Class)creatModelClassWithIvars:(NSArray*)ivars
 {
@@ -35,12 +22,27 @@
     }
     Method imp_a = class_getInstanceMethod([self class], @selector(valueForProperty:));
     class_addMethod(JsonClass, @selector(valueForProperty:), method_getImplementation(imp_a), "#@:");
-    
+
     Method imp_b = class_getInstanceMethod([self class], @selector(setValue:forProperty:));
     class_addMethod(JsonClass, @selector(setValue:forProperty:), method_getImplementation(imp_b), "v@:");
-    
+
+    Method imp_c = class_getInstanceMethod([self class], @selector(addMethod:withSEL:));
+    class_addMethod(JsonClass, @selector(addMethod:withSEL:), method_getImplementation(imp_c), "v@:");
+   
     objc_registerClassPair(JsonClass);
     return JsonClass;
+}
+
++(NSObject<YXYJsonModelProtocol>*)creatModelWithJson:(NSDictionary*)jDic
+{
+    
+    NSArray *keys = [jDic allKeys];
+    Class JsonClass = [self creatModelClassWithIvars:keys];
+    id jsonObjc = [[JsonClass alloc] init];
+    for (NSString *ivar in keys) {
+        [jsonObjc setValue:jDic[ivar] forKey:ivar];
+    }
+    return jsonObjc;
 }
 
 -(id)valueForProperty:(NSString*)property
@@ -52,5 +54,12 @@
 {
     [self setValue:value forKey:property];
 }
+
+-(void)addMethod:(Class)cls withSEL:(SEL)sel
+{
+    Method imp_c = class_getInstanceMethod(cls, sel);
+    class_addMethod([self class], sel, method_getImplementation(imp_c), "v@:");
+}
+
 
 @end
