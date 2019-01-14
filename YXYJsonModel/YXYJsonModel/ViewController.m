@@ -31,16 +31,13 @@
 -(void)actionForButton
 {
     NSDictionary *dic = @{@"name":@"json",@"age":@"10",@"height":@"100"};
-    NSObject<YXYJsonModelProtocol> *model = [YXYJsonModelFactory creatModelWithJson:dic];
+    NSObject<YXYJsonModelProtocol,YXYJsonSetGetProtocol> *model = [YXYJsonModelFactory creatModelWithJson:dic];
     for (NSString *str in [dic allKeys]) {
         NSLog(@"=%@",[model performSelector:@selector(valueForProperty:) withObject:str]);
     }
-    [model addMethod:[self class] withSEL:@selector(getName)];
-    [model performSelector:@selector(getName)];
+    [model setName:@"aaaa"];
+//    NSLog(@"set=%@",[model aname]);
+    NSLog(@"=%@",[model performSelector:@selector(valueForProperty:) withObject:@"name"]);
 }
 
--(void)getName
-{
-    NSLog(@"====");
-}
 @end

@@ -15,8 +15,9 @@
 {
     Class JsonClass = objc_allocateClassPair([NSObject class], "JsonClass", 0);
     class_addProtocol(JsonClass, @protocol(YXYJsonModelProtocol));
+    class_addProtocol(JsonClass, @protocol(YXYJsonSetGetProtocol));
     for (NSString * ivar in ivars) {
-        const char * chIvar = [ivar cStringUsingEncoding:NSUTF8StringEncoding];
+        const char * chIvar = [[ivar lowercaseString] cStringUsingEncoding:NSUTF8StringEncoding];
         BOOL isSuccess = class_addIvar(JsonClass, chIvar, sizeof(NSString *), 0, "@");
         NSLog(@"添加属性:%@ %@",ivar,(isSuccess ? @"成功" : @"失败"));
     }
@@ -29,11 +30,41 @@
     Method imp_c = class_getInstanceMethod([self class], @selector(addMethod:withSEL:));
     class_addMethod(JsonClass, @selector(addMethod:withSEL:), method_getImplementation(imp_c), "v@:");
    
+    unsigned int count;
+   struct objc_method_description *protocolMethods = protocol_copyMethodDescriptionList(@protocol(YXYJsonSetGetProtocol), YES, YES, &count);
+    for (int i=0; i<count; i++) {
+        struct objc_method_description pMethod = protocolMethods[i];
+        if ([NSStringFromSelector(pMethod.name) hasPrefix:@"set"]) {
+            Method imp_i = class_getInstanceMethod([self class], @selector(setJsonValue:));
+            class_addMethod(JsonClass, pMethod.name, method_getImplementation(imp_i), "v@:");
+        }else{
+//            Method imp_ii = class_getInstanceMethod([self class], @selector(jsonModelValue));
+//            class_addMethod(JsonClass, pMethod.name, method_getImplementation(imp_ii), "#@:");
+            
+        }
+    }
+    
     objc_registerClassPair(JsonClass);
     return JsonClass;
 }
 
-+(NSObject<YXYJsonModelProtocol>*)creatModelWithJson:(NSDictionary*)jDic
+-(void)setJsonValue:(NSString*)value{
+    
+    NSString *str = NSStringFromSelector(_cmd);
+    str = [str stringByReplacingOccurrencesOfString:@"set" withString:@""];
+    str = [str stringByReplacingOccurrencesOfString:@":" withString:@""];
+    str = [str lowercaseString];
+    [self setValue:value forKey:str];
+}
+
+-(NSString*)jsonModelValue
+{
+    NSString *str = NSStringFromSelector(_cmd);
+    NSLog(@"====%@",str);
+    return [self valueForKey:str];
+}
+
++(NSObject<YXYJsonModelProtocol,YXYJsonSetGetProtocol>*)creatModelWithJson:(NSDictionary*)jDic
 {
     
     NSArray *keys = [jDic allKeys];
